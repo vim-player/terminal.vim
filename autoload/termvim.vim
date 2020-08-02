@@ -305,3 +305,22 @@ function! termvim#watchTerm(cmd) abort
     call add(s:vimBufs, l:bufnr)
   endif
 endfunction
+
+function! termvim#toggle(side) abort
+  let l:sideWins = []
+  if a:side ==# 'top'
+    let l:sideWins = termvim#getTabTopWins()
+  elseif a:side ==# 'bottom'
+    let l:sideWins = termvim#getTabBottomWins()
+  elseif a:side ==# 'left'
+    let l:sideWins = termvim#getTabLeftWins()
+  elseif a:side ==# 'right'
+    let l:sideWins = termvim#getTabRightWins()
+  endif
+  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+    call termvim#hideTerms(a:side)
+  else
+    call termvim#openTerm(a:side)
+  endif
+endfunction

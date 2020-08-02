@@ -8,21 +8,25 @@
 
 - `:TermvimTopOpen` 顶部打开 terminal
 - `:TermvimTopHide` 隐藏顶部 terminal
+- `:TermvimTopToggle`: toggle
 
 ### Bottom
 
 - `:TermvimBottomOpen` 底部打开 terminal
 - `:TermvimBottomHide` 隐藏底部 terminal
+- `:TermvimBottomToggle`: toggle
 
 ### Left
 
 - `:TermvimLeftOpen` 左边打开 terminal
 - `:TermvimLeftHide` 隐藏左边 terminal
+- `:TermvimLeftToggle`: toggle
 
 ### Right
 
 - `:TermvimRightOpen` 右边打开 terminal
 - `:TermvimRightHide` 隐藏右边 terminal
+- `:TermvimRightToggle`: toggle
 
 ### Watching
 
