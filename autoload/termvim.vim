@@ -11,6 +11,8 @@ let s:tabLastWinId = {
   \ 'left': {},
   \ 'right': {}
   \ }
+let s:watchChanel = {}
+let s:vimBufs = []
 
 " 获取当前 tab 下面的所有 windows
 function! termvim#getTabWins() abort
@@ -184,7 +186,6 @@ function! termvim#openTerm(side) abort
       elseif a:side ==# 'bottom'
         botright split term://zsh
       elseif a:side ==# 'left'
-        echomsg 'topleft vsplit term://zsh'
         topleft vsplit term://zsh
       elseif a:side ==# 'right'
         botright vsplit term://zsh
@@ -245,5 +246,62 @@ function! termvim#hideTerms(side) abort
       call win_gotoid(l:win['winid'])
       execute 'silent! close!'
     endfor
+  endif
+endfunction
+
+function s:termOut(...) abort
+  let l:ch = a:1
+  if !has('nvim')
+    let l:ch = split(a:1, ' ')[1]
+  endif
+  let l:bufnr = get(s:watchChanel, l:ch, 0)
+  if !l:bufnr
+    if !has('nvim') && s:vimBufs[-1]
+      let l:bufnr = s:vimBufs[-1]
+      let s:watchChanel[l:ch] = l:bufnr
+      let s:vimBufs = s:vimBufs[0:-2]
+    else
+      return
+    endif
+  endif
+  let l:wins = getwininfo()
+  let l:isShow = v:false
+  for l:win in l:wins
+    if l:win['bufnr'] ==# l:bufnr
+      let l:isShow = v:true
+    endif
+  endfor
+  if !l:isShow
+    tabnew
+    execute 'b' . l:bufnr
+    if has('nvim')
+      normal G
+      nnoremap <buffer> q :silent! tabclose<CR>:tabprevious<CR>
+      nnoremap <buffer> <ESC> :silent! tabclose<CR>:tabprevious<CR>
+    else
+      normal a
+      nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
+      nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
+    endif
+  endif
+endfunction
+
+function! termvim#watchTerm(cmd) abort
+  if has('nvim')
+    let l:ch = termopen(a:cmd, {
+      \  'on_stdout': function('s:termOut'),
+      \  'on_stderr': function('s:termOut')
+      \ })
+    let s:watchChanel[l:ch] = bufnr()
+  else
+    let l:isWin = has('win32') && fnamemodify(&shell, ':t') ==? 'cmd.exe'
+    let l:bufnr = term_start(!l:isWin ? ['/bin/sh', '-c', a:cmd] : ['cmd.exe', '/c', a:cmd],
+          \ {
+          \   "out_cb": function('s:termOut'),
+          \   "err_cb": function('s:termOut'),
+          \   "curwin": v:true
+          \ }
+          \)
+    call add(s:vimBufs, l:bufnr)
   endif
 endfunction

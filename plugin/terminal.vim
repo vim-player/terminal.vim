@@ -9,3 +9,5 @@ command TermvimLeftHide call termvim#hideTerms('left')
 
 command TermvimRightOpen call termvim#openTerm('right')
 command TermvimRightHide call termvim#hideTerms('right')
+
+command -nargs=* TermvimWatch call termvim#watchTerm('<args>')
