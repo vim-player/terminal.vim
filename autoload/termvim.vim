@@ -286,16 +286,16 @@ function s:termOut(...) abort
   endif
 endfunction
 
-function! termvim#watchTerm(cmd) abort
+function! termvim#watchTerm(...) abort
   if has('nvim')
-    let l:ch = termopen(a:cmd, {
+    let l:ch = termopen(get(a:, 1, 0) ? a:1 : &shell, {
       \  'on_stdout': function('s:termOut'),
       \  'on_stderr': function('s:termOut')
       \ })
     let s:watchChanel[l:ch] = bufnr()
   else
     let l:isWin = has('win32') && fnamemodify(&shell, ':t') ==? 'cmd.exe'
-    let l:bufnr = term_start(!l:isWin ? ['/bin/sh', '-c', a:cmd] : ['cmd.exe', '/c', a:cmd],
+    let l:bufnr = term_start(!l:isWin ? (get(a:, 1, 0) ? ['/bin/sh', '-c', a:1] : &shell) : (get(a:, 1, 0) ? ['cmd.exe', '/c', a:1] : &shell),
           \ {
           \   "out_cb": function('s:termOut'),
           \   "err_cb": function('s:termOut'),
