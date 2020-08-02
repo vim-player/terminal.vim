@@ -276,13 +276,11 @@ function s:termOut(...) abort
     execute 'b' . l:bufnr
     if has('nvim')
       normal G
-      nnoremap <buffer> q :silent! tabclose<CR>:tabprevious<CR>
-      nnoremap <buffer> <ESC> :silent! tabclose<CR>:tabprevious<CR>
     else
       normal a
-      nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
-      nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
     endif
+    nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
+    nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
   endif
 endfunction
 
