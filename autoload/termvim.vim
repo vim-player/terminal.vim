@@ -168,9 +168,16 @@ function! termvim#openTerm(side) abort
     if a:side ==# 'top' || a:side ==# 'bottom'
       let l:splitRight = &splitright
       set splitright
+    else
+      let l:splitBelow = &splitright
+      set splitbelow
     endif
     for l:win in l:termWins[1:]
-      vsplit
+      if a:side ==# 'top' || a:side ==# 'bottom'
+        vsplit
+      else
+        split
+      endif
       execute 'b' . l:win['bufnr']
       if get(s:tabLastWinId[a:side], tabpagenr(), 0) ==# l:win['winid']
         let l:lastWinId = win_getid()
@@ -178,6 +185,8 @@ function! termvim#openTerm(side) abort
     endfor
     if a:side ==# 'top' || a:side ==# 'bottom'
       let &splitright = l:splitRight
+    else
+      let &splitbelow = l:splitBelow
     endif
   else
     if has('nvim')
