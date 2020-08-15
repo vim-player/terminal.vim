@@ -4,14 +4,13 @@ let s:tabTermInfo = {
   \ 'bottom': {},
   \ 'left': {},
   \ 'right': {},
-  \ 'tab': {}
+  \ 'tabBufnr': -1
   \ }
 let s:tabLastWinId = {
   \ 'top': {},
   \ 'bottom': {},
   \ 'left': {},
-  \ 'right': {},
-  \ 'tab': {}
+  \ 'right': {}
   \ }
 let s:watchChanel = {}
 let s:vimBufs = []
@@ -58,15 +57,15 @@ function! termvim#getTabBottomWins() abort
   for l:win in l:wins
     let l:row = win_screenpos(l:win['winnr'])[0]
     if l:bottomRow ==# -1
-      let l:bottomRow = l:row
+      let l:bottomRow = l:row + l:win['height']
     endif
-    if l:row > l:bottomRow
-      let l:bottomRow = l:row
+    if l:row + l:win['height'] > l:bottomRow
+      let l:bottomRow = l:row + l:win['height']
     endif
   endfor
   let l:res = []
   for l:win in l:wins
-    if win_screenpos(l:win['winnr'])[0] ==# l:bottomRow
+    if win_screenpos(l:win['winnr'])[0] + l:win['height'] ==# l:bottomRow
       call add(l:res, l:win)
     endif
   endfor
@@ -102,15 +101,15 @@ function! termvim#getTabRightWins() abort
   for l:win in l:wins
     let l:col = win_screenpos(l:win['winnr'])[1]
     if l:rightCol ==# -1
-      let l:rightCol = l:col
+      let l:rightCol = l:col + l:win['width']
     endif
-    if l:col > l:rightCol
-      let l:rightCol = l:col
+    if l:col + l:win['width'] > l:rightCol
+      let l:rightCol = l:col + l:win['width']
     endif
   endfor
   let l:res = []
   for l:win in l:wins
-    if win_screenpos(l:win['winnr'])[1] ==# l:rightCol
+    if win_screenpos(l:win['winnr'])[1] + l:win['width'] ==# l:rightCol
       call add(l:res, l:win)
     endif
   endfor
@@ -128,7 +127,7 @@ function! termvim#filterTermWins(wins) abort
   return l:res
 endfunction
 
-function! termvim#openTerm(side, extra) abort
+function! termvim#openTerm(side, extra, bufnr) abort
   let l:isWatch = v:false
   let l:params = split(a:extra, ' ')
   for l:param in l:params
@@ -157,11 +156,9 @@ function! termvim#openTerm(side, extra) abort
     let l:sideWins = termvim#getTabLeftWins()
   elseif a:side ==# 'right'
     let l:sideWins = termvim#getTabRightWins()
-  elseif a:side ==# 'tab'
-    let l:sideWins = termvim#getTabWins()
   endif
   let l:sideTermWins = termvim#filterTermWins(l:sideWins)
-  if (a:side ==# 'top' ? len(l:sideTermWins) ==# 1 : len(l:sideTermWins) > 0) && len(l:sideTermWins) ==# len(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
     return
   endif
   let l:termWins = []
@@ -173,6 +170,7 @@ function! termvim#openTerm(side, extra) abort
   endfor
   let l:firstWinid = 0
   let l:lastWinId = 0
+  let l:targetWinId = 0
   if len(l:termWins) > 0
     if a:side ==# 'top'
       topleft split
@@ -186,6 +184,9 @@ function! termvim#openTerm(side, extra) abort
     execute 'b' . l:termWins[0]['bufnr']
     if get(s:tabLastWinId[a:side], tabpagenr(), 0) ==# l:termWins[0]['winid']
       let l:lastWinId = win_getid()
+    endif
+    if l:termWins[0]['bufnr'] ==# a:bufnr
+      let l:targetWinId = win_getid()
     endif
     let l:firstWinid = win_getid()
     if a:side ==# 'top' || a:side ==# 'bottom'
@@ -204,6 +205,9 @@ function! termvim#openTerm(side, extra) abort
       execute 'b' . l:win['bufnr']
       if get(s:tabLastWinId[a:side], tabpagenr(), 0) ==# l:win['winid']
         let l:lastWinId = win_getid()
+      endif
+      if l:win['bufnr'] ==# a:bufnr
+        let l:targetWinId = win_getid()
       endif
     endfor
     if a:side ==# 'top' || a:side ==# 'bottom'
@@ -241,13 +245,6 @@ function! termvim#openTerm(side, extra) abort
         else
           execute 'botright vsplit term://' . &shell
         endif
-      elseif a:side ==# 'tab'
-        tabnew
-        if l:isWatch
-          call termvim#watchTerm()
-        else
-          execute 'e term://' . &shell
-        endif
       endif
     else
       if a:side ==# 'top'
@@ -278,21 +275,25 @@ function! termvim#openTerm(side, extra) abort
         else
           terminal ++curwin
         endif
-      elseif a:side ==# 'tab'
-        tabnew
-        terminal ++curwin
       endif
     endif
   endif
   if a:side ==# 'top' || a:side ==# 'bottom'
     execute 'resize ' . l:size
-  elseif a:side !=# 'tab'
+  else
     execute 'vertical resize ' . l:size
   endif
   if l:lastWinId
     let l:firstWinid = l:lastWinId
   endif
-  if l:firstWinid
+  if l:targetWinId
+    call win_gotoid(l:targetWinId)
+    if has('nvim')
+      normal G
+    else
+      normal a
+    endif
+  elseif l:firstWinid
     call win_gotoid(l:firstWinid)
     if has('nvim')
       startinsert
@@ -313,11 +314,9 @@ function! termvim#hideTerms(side) abort
     let l:sideWins = termvim#getTabLeftWins()
   elseif a:side ==# 'right'
     let l:sideWins = termvim#getTabRightWins()
-  elseif a:side ==# 'tab'
-    let l:sideWins = termvim#getTabRightWins()
   endif
   let l:sideTermWins = termvim#filterTermWins(l:sideWins)
-  if (a:side ==# 'tab' ? len(l:sideTermWins) ==# 1 :len(l:sideTermWins) > 0) && len(l:sideTermWins) ==# len(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
     if !exists('s:tabTermInfo.' . a:side)
       let s:tabTermInfo[a:side] = {}
     endif
@@ -365,7 +364,7 @@ function s:termOut(...) abort
           if l:win['bufnr'] ==# l:bufnr
             let l:done = v:true
             execute 'normal ' . l:tab['tabnr'] . 'gt'
-            call termvim#toggle(l:side, '')
+            call termvim#toggle(l:side, '', l:bufnr)
           endif
         endfor
       endfor
@@ -405,23 +404,49 @@ function! termvim#watchTerm(...) abort
   endif
 endfunction
 
-function! termvim#toggle(side, extra) abort
-  let l:sideWins = []
-  if a:side ==# 'top'
-    let l:sideWins = termvim#getTabTopWins()
-  elseif a:side ==# 'bottom'
-    let l:sideWins = termvim#getTabBottomWins()
-  elseif a:side ==# 'left'
-    let l:sideWins = termvim#getTabLeftWins()
-  elseif a:side ==# 'right'
-    let l:sideWins = termvim#getTabRightWins()
-  elseif a:side ==# 'tab'
-    let l:sideWins = termvim#getTabWins()
-  endif
-  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
-  if (a:side ==# 'tab' ? len(l:sideTermWins) ==# 1 : len(l:sideTermWins) > 0) && len(l:sideTermWins) ==# len(l:sideWins)
-    call termvim#hideTerms(a:side)
+function! termvim#toggle(side, extra, bufnr) abort
+  if a:side !=# 'tab'
+    let l:sideWins = []
+    if a:side ==# 'top'
+      let l:sideWins = termvim#getTabTopWins()
+    elseif a:side ==# 'bottom'
+      let l:sideWins = termvim#getTabBottomWins()
+    elseif a:side ==# 'left'
+      let l:sideWins = termvim#getTabLeftWins()
+    elseif a:side ==# 'right'
+      let l:sideWins = termvim#getTabRightWins()
+    endif
+    let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+    if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+      call termvim#hideTerms(a:side)
+    else
+      call termvim#openTerm(a:side, a:extra, a:bufnr)
+    endif
   else
-    call termvim#openTerm(a:side, a:extra)
+    if s:tabTermInfo.tabBufnr !=# -1 && bufexists(s:tabTermInfo.tabBufnr)
+      let l:wins = getwininfo()
+      for l:win in l:wins
+        if l:win['bufnr'] ==# s:tabTermInfo.tabBufnr
+          let l:showWin = l:win
+        endif
+      endfor
+      if exists('l:showWin')
+        execute 'silent! tabclose!' . l:showWin['tabnr']
+      else
+        tabnew
+        execute 'b' . s:tabTermInfo.tabBufnr
+        normal G
+      endif
+    else
+      let l:sideWins = termvim#getTabWins()
+      let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+      if len(l:sideTermWins) ==# 1 && len(l:sideTermWins) ==# len(l:sideWins)
+        let s:tabTermInfo.tabBufnr = l:sideTermWins[0]['bufnr']
+        silent! tabclose!
+      else
+        tabnew
+        call termvim#watchTerm()
+      endif
+    endif
   endif
 endfunction

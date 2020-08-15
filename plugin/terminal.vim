@@ -1,20 +1,20 @@
-command! -nargs=* TermvimTopOpen call termvim#openTerm('top', '<args>')
-command! -nargs=* TermvimTopToggle call termvim#toggle('top', '<args>')
+command! -nargs=* TermvimTopOpen call termvim#openTerm('top', '<args>', '')
+command! -nargs=* TermvimTopToggle call termvim#toggle('top', '<args>', '')
 command! TermvimTopHide call termvim#hideTerms('top')
 
-command! -nargs=* TermvimBottomOpen call termvim#openTerm('bottom', '<args>')
-command! -nargs=* TermvimBottomToggle call termvim#toggle('bottom', '<args>')
+command! -nargs=* TermvimBottomOpen call termvim#openTerm('bottom', '<args>', '')
+command! -nargs=* TermvimBottomToggle call termvim#toggle('bottom', '<args>', '')
 command! TermvimBottomHide call termvim#hideTerms('bottom')
 
-command! -nargs=* TermvimLeftOpen call termvim#openTerm('left', '<args>')
-command! -nargs=* TermvimLeftToggle call termvim#toggle('left', '<args>')
+command! -nargs=* TermvimLeftOpen call termvim#openTerm('left', '<args>', '')
+command! -nargs=* TermvimLeftToggle call termvim#toggle('left', '<args>', '')
 command! TermvimLeftHide call termvim#hideTerms('left')
 
-command! -nargs=* TermvimRightOpen call termvim#openTerm('right', '<args>')
-command! -nargs=* TermvimRightToggle call termvim#toggle('right', '<args>')
+command! -nargs=* TermvimRightOpen call termvim#openTerm('right', '<args>', '')
+command! -nargs=* TermvimRightToggle call termvim#toggle('right', '<args>', '')
 command! TermvimRightHide call termvim#hideTerms('right')
 
-command! -nargs=* TermvimTabToggle call termvim#toggle('tab', '<args>')
+command! -nargs=* TermvimTabToggle call termvim#toggle('tab', '<args>', '')
 
 if !exists('g:termvim_left_size')
   let g:termvim_left_size = 50
