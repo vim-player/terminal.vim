@@ -14,7 +14,7 @@ command! -nargs=* TermvimRightOpen call termvim#openTerm('right', '<args>')
 command! -nargs=* TermvimRightToggle call termvim#toggle('right', '<args>')
 command! TermvimRightHide call termvim#hideTerms('right')
 
-command! -nargs=* TermvimTabToggle call termvim#watchTerm('<args>')
+command! -nargs=* TermvimTabToggle call termvim#toggle('tab', '<args>')
 
 if !exists('g:termvim_left_size')
   let g:termvim_left_size = 50
