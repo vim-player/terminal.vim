@@ -356,35 +356,31 @@ function s:termOut(...) abort
     endif
   endfor
   if !l:isShow
-    tabnew
-    execute 'b' . l:bufnr
-    if has('nvim')
-      normal G
-    else
-      normal a
-    endif
-    nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
-    nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
-  endif
-endfunction
+    for l:side in ['top', 'bottom', 'left', 'right']
+      let l:tabsTerms = s:tabTermInfo[l:side]
+      let l:tabs = gettabinfo()
+      for l:tab in l:tabs
+        let l:wins = get(l:tabsTerms, l:tab['tabnr'], [])
+        for l:win in l:wins
+          if l:win['bufnr'] ==# l:bufnr
+            let l:done = v:true
+            execute 'normal ' . l:tab['tabnr'] . 'gt'
+            call termvim#toggle(l:side, '')
+          endif
+        endfor
+      endfor
+    endfor
 
-function termvim#tabToggle(...) abort
-  let l:isWatch = v:false
-  let l:params = split(get(a:, 1, ''), ' ')
-  for l:param in l:params
-    if l:param ==# 'watch'
-      let l:isWatch = v:true
-    endif
-  endfor
-  tabnew
-  tabnew
-  if l:isWatch
-    call termvim#watchTerm()
-  else
-    if has('nvim')
-      execut 'e term://' . &shell
-    else
-      terminal ++curwin
+    if !get(l:, 'done', v:false)
+      tabnew
+      execute 'b' . l:bufnr
+      if has('nvim')
+        normal G
+      else
+        normal a
+      endif
+      nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
+      nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
     endif
   endif
 endfunction
