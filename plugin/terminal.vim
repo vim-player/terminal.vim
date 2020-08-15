@@ -35,33 +35,45 @@ endif
 function! s:termvim_hide() abort
   let l:winid = win_getid()
   let l:sideWins = termvim#getTabTopWins()
-  for l:win in l:sideWins
-    if l:winid ==# l:win['winid']
-      TermvimTopHide
-      return
-    endif
-  endfor
+  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+    for l:win in l:sideWins
+      if l:winid ==# l:win['winid']
+        TermvimTopHide
+        return
+      endif
+    endfor
+  endif
   let l:sideWins = termvim#getTabBottomWins()
-  for l:win in l:sideWins
-    if l:winid ==# l:win['winid']
-      TermvimBottomHide
-      return
-    endif
-  endfor
+  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+    for l:win in l:sideWins
+      if l:winid ==# l:win['winid']
+        TermvimBottomHide
+        return
+      endif
+    endfor
+  endif
   let l:sideWins = termvim#getTabLeftWins()
-  for l:win in l:sideWins
-    if l:winid ==# l:win['winid']
-      TermvimLeftHide
-      return
-    endif
-  endfor
+  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+    for l:win in l:sideWins
+      if l:winid ==# l:win['winid']
+        TermvimLeftHide
+        return
+      endif
+    endfor
+  endif
   let l:sideWins = termvim#getTabRightWins()
-  for l:win in l:sideWins
-    if l:winid ==# l:win['winid']
-      TermvimRightHide
-      return
-    endif
-  endfor
+  let l:sideTermWins = termvim#filterTermWins(l:sideWins)
+  if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
+    for l:win in l:sideWins
+      if l:winid ==# l:win['winid']
+        TermvimRightHide
+        return
+      endif
+    endfor
+  endif
 endfunction
 
 augroup TermvimAug
