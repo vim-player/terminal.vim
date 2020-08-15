@@ -137,6 +137,15 @@ function! termvim#openTerm(side, extra) abort
       let l:size = l:param
     endif
   endfor
+  if a:side ==# 'top'
+    let l:size = get(l:, 'size', g:termvim_top_size)
+  elseif a:side ==# 'bottom'
+    let l:size = get(l:, 'size', g:termvim_bottom_size)
+  elseif a:side ==# 'left'
+    let l:size = get(l:, 'size', g:termvim_left_size)
+  elseif a:side ==# 'right'
+    let l:size = get(l:, 'size', g:termvim_right_size)
+  endif
   let l:sideWins = []
   if a:side ==# 'top'
     let l:sideWins = termvim#getTabTopWins()
@@ -201,7 +210,6 @@ function! termvim#openTerm(side, extra) abort
   else
     if has('nvim')
       if a:side ==# 'top'
-        let l:size = get(l:, 'size', g:termvim_top_size)
         if l:isWatch
           topleft split
           call termvim#watchTerm()
@@ -209,7 +217,6 @@ function! termvim#openTerm(side, extra) abort
           execute 'topleft split term://' . &shell
         endif
       elseif a:side ==# 'bottom'
-        let l:size = get(l:, 'size', g:termvim_bottom_size)
         if l:isWatch
           botright split
           call termvim#watchTerm()
@@ -217,7 +224,6 @@ function! termvim#openTerm(side, extra) abort
           execute 'botright split term://' . &shell
         endif
       elseif a:side ==# 'left'
-        let l:size = get(l:, 'size', g:termvim_left_size)
         if l:isWatch
           topleft vsplit
           call termvim#watchTerm()
@@ -225,7 +231,6 @@ function! termvim#openTerm(side, extra) abort
           execute 'topleft vsplit term://' . &shell
         endif
       elseif a:side ==# 'right'
-        let l:size = get(l:, 'size', g:termvim_right_size)
         if l:isWatch
           botright vsplit
           call termvim#watchTerm()
@@ -235,7 +240,6 @@ function! termvim#openTerm(side, extra) abort
       endif
     else
       if a:side ==# 'top'
-        let l:size = get(l:, 'size', g:termvim_top_size)
         if l:isWatch
           topleft split
           call termvim#watchTerm()
@@ -243,7 +247,6 @@ function! termvim#openTerm(side, extra) abort
           topleft terminal
         endif
       elseif a:side ==# 'bottom'
-        let l:size = get(l:, 'size', g:termvim_bottom_size)
         if l:isWatch
           botright split
           call termvim#watchTerm()
@@ -251,7 +254,6 @@ function! termvim#openTerm(side, extra) abort
           botright terminal
         endif
       elseif a:side ==# 'left'
-        let l:size = get(l:, 'size', g:termvim_left_size)
         topleft vsplit
         if l:isWatch
           call termvim#watchTerm()
@@ -259,7 +261,6 @@ function! termvim#openTerm(side, extra) abort
           terminal ++curwin
         endif
       elseif a:side ==# 'right'
-        let l:size = get(l:, 'size', g:termvim_right_size)
         botright vsplit
         if l:isWatch
           call termvim#watchTerm()
@@ -353,7 +354,7 @@ endfunction
 
 function! termvim#watchTerm(...) abort
   let l:isWatch = v:false
-  let l:params = split(a:1, ' ')
+  let l:params = split(get(a:, 1, ''), ' ')
   for l:param in l:params
     if l:param ==# 'watch'
       let l:isWatch = v:true
