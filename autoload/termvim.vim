@@ -126,7 +126,17 @@ function! termvim#filterTermWins(wins) abort
   return l:res
 endfunction
 
-function! termvim#openTerm(side) abort
+function! termvim#openTerm(side, extra) abort
+  let l:isWatch = v:false
+  let l:params = split(a:extra, ' ')
+  for l:param in l:params
+    if l:param ==# 'watch'
+      let l:isWatch = v:true
+    endif
+    if l:param =~# '\v^\d+$'
+      let l:size = l:param
+    endif
+  endfor
   let l:sideWins = []
   if a:side ==# 'top'
     let l:sideWins = termvim#getTabTopWins()
@@ -191,30 +201,78 @@ function! termvim#openTerm(side) abort
   else
     if has('nvim')
       if a:side ==# 'top'
-        topleft split term://zsh
+        let l:size = get(l:, 'size', g:termvim_top_size)
+        if l:isWatch
+          topleft split
+          call termvim#watchTerm()
+        else
+          execute 'topleft split term://' . &shell
+        endif
       elseif a:side ==# 'bottom'
-        botright split term://zsh
+        let l:size = get(l:, 'size', g:termvim_bottom_size)
+        if l:isWatch
+          botright split
+          call termvim#watchTerm()
+        else
+          execute 'botright split term://' . &shell
+        endif
       elseif a:side ==# 'left'
-        topleft vsplit term://zsh
+        let l:size = get(l:, 'size', g:termvim_left_size)
+        if l:isWatch
+          topleft vsplit
+          call termvim#watchTerm()
+        else
+          execute 'topleft vsplit term://' . &shell
+        endif
       elseif a:side ==# 'right'
-        botright vsplit term://zsh
+        let l:size = get(l:, 'size', g:termvim_right_size)
+        if l:isWatch
+          botright vsplit
+          call termvim#watchTerm()
+        else
+          execute 'botright vsplit term://' . &shell
+        endif
       endif
     else
       if a:side ==# 'top'
-        topleft terminal
+        let l:size = get(l:, 'size', g:termvim_top_size)
+        if l:isWatch
+          topleft split
+          call termvim#watchTerm()
+        else
+          topleft terminal
+        endif
       elseif a:side ==# 'bottom'
-        botright terminal
+        let l:size = get(l:, 'size', g:termvim_bottom_size)
+        if l:isWatch
+          botright split
+          call termvim#watchTerm()
+        else
+          botright terminal
+        endif
       elseif a:side ==# 'left'
+        let l:size = get(l:, 'size', g:termvim_left_size)
         topleft vsplit
-        terminal ++curwin
+        if l:isWatch
+          call termvim#watchTerm()
+        else
+          terminal ++curwin
+        endif
       elseif a:side ==# 'right'
+        let l:size = get(l:, 'size', g:termvim_right_size)
         botright vsplit
-        terminal ++curwin
+        if l:isWatch
+          call termvim#watchTerm()
+        else
+          terminal ++curwin
+        endif
       endif
     endif
   endif
   if a:side ==# 'top' || a:side ==# 'bottom'
-    resize 10
+    execute 'resize ' . l:size
+  else
+    execute 'vertical resize ' . l:size
   endif
   if l:lastWinId
     let l:firstWinid = l:lastWinId
@@ -294,15 +352,25 @@ function s:termOut(...) abort
 endfunction
 
 function! termvim#watchTerm(...) abort
+  let l:isWatch = v:false
+  let l:params = split(a:1, ' ')
+  for l:param in l:params
+    if l:param ==# 'watch'
+      let l:isWatch = v:true
+    endif
+  endfor
+  if !l:isWatch
+    tabnew
+  endif
   if has('nvim')
-    let l:ch = termopen(get(a:, 1, 0) ? a:1 : &shell, {
+    e new
+    let l:ch = termopen(&shell, {
       \  'on_stdout': function('s:termOut'),
       \  'on_stderr': function('s:termOut')
       \ })
     let s:watchChanel[l:ch] = bufnr()
   else
-    let l:isWin = has('win32') && fnamemodify(&shell, ':t') ==? 'cmd.exe'
-    let l:bufnr = term_start(!l:isWin ? (get(a:, 1, 0) ? ['/bin/sh', '-c', a:1] : &shell) : (get(a:, 1, 0) ? ['cmd.exe', '/c', a:1] : &shell),
+    let l:bufnr = term_start(&shell,
           \ {
           \   "out_cb": function('s:termOut'),
           \   "err_cb": function('s:termOut'),
@@ -313,7 +381,7 @@ function! termvim#watchTerm(...) abort
   endif
 endfunction
 
-function! termvim#toggle(side) abort
+function! termvim#toggle(side, extra) abort
   let l:sideWins = []
   if a:side ==# 'top'
     let l:sideWins = termvim#getTabTopWins()
@@ -328,6 +396,6 @@ function! termvim#toggle(side) abort
   if len(l:sideTermWins) > 0 && len(l:sideTermWins) ==# len(l:sideWins)
     call termvim#hideTerms(a:side)
   else
-    call termvim#openTerm(a:side)
+    call termvim#openTerm(a:side, a:extra)
   endif
 endfunction

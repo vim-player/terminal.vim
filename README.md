@@ -9,24 +9,28 @@
 - `:TermvimTopOpen` 顶部打开 terminal
 - `:TermvimTopHide` 隐藏顶部 terminal
 - `:TermvimTopToggle`: toggle
+- `let g:termvim_top_size = 10`
 
 ### Bottom
 
 - `:TermvimBottomOpen` 底部打开 terminal
 - `:TermvimBottomHide` 隐藏底部 terminal
 - `:TermvimBottomToggle`: toggle
+- `let g:termvim_bottom_size = 10`
 
 ### Left
 
 - `:TermvimLeftOpen` 左边打开 terminal
 - `:TermvimLeftHide` 隐藏左边 terminal
 - `:TermvimLeftToggle`: toggle
+- `let g:termvim_left_size = 10`
 
 ### Right
 
 - `:TermvimRightOpen` 右边打开 terminal
 - `:TermvimRightHide` 隐藏右边 terminal
 - `:TermvimRightToggle`: toggle
+- `let g:termvim_right_size = 10`
 
 ### Watching
 
