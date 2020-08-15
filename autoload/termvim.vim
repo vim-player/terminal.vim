@@ -212,28 +212,28 @@ function! termvim#openTerm(side, extra) abort
       if a:side ==# 'top'
         if l:isWatch
           topleft split
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           execute 'topleft split term://' . &shell
         endif
       elseif a:side ==# 'bottom'
         if l:isWatch
           botright split
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           execute 'botright split term://' . &shell
         endif
       elseif a:side ==# 'left'
         if l:isWatch
           topleft vsplit
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           execute 'topleft vsplit term://' . &shell
         endif
       elseif a:side ==# 'right'
         if l:isWatch
           botright vsplit
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           execute 'botright vsplit term://' . &shell
         endif
@@ -242,28 +242,28 @@ function! termvim#openTerm(side, extra) abort
       if a:side ==# 'top'
         if l:isWatch
           topleft split
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           topleft terminal
         endif
       elseif a:side ==# 'bottom'
         if l:isWatch
           botright split
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           botright terminal
         endif
       elseif a:side ==# 'left'
         topleft vsplit
         if l:isWatch
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           terminal ++curwin
         endif
       elseif a:side ==# 'right'
         botright vsplit
         if l:isWatch
-          call termvim#watchTerm()
+          call termvim#watchTerm('watch')
         else
           terminal ++curwin
         endif

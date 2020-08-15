@@ -17,11 +17,11 @@ command! TermvimRightHide call termvim#hideTerms('right')
 command! -nargs=* TermvimTabToggle call termvim#watchTerm('<args>')
 
 if !exists('g:termvim_left_size')
-  let g:termvim_left_size = 10
+  let g:termvim_left_size = 50
 endif
 
 if !exists('g:termvim_right_size')
-  let g:termvim_right_size = 10
+  let g:termvim_right_size = 50
 endif
 
 if !exists('g:termvim_top_size')
