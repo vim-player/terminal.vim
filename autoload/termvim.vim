@@ -424,7 +424,7 @@ function s:termOut(...) abort
   let l:showTab = -1
   for l:win in l:wins
     if l:win['bufnr'] ==# l:bufnr
-      let l:showTab = l:win['bufnr']
+      let l:showTab = l:win['tabnr']
       let l:isShow = v:true
     endif
   endfor
