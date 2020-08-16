@@ -42,8 +42,26 @@ function! termvim#getTabTopWins() abort
     endif
   endfor
   let l:res = []
+  let l:others = []
   for l:win in l:wins
     if win_screenpos(l:win['winnr'])[0] ==# l:topRow
+      call add(l:res, l:win)
+    else
+      call add(l:others, l:win)
+    endif
+  endfor
+  let l:bottomRow = -1
+  for l:win in l:res
+    let l:row = win_screenpos(l:win['winnr'])[0] + l:win['height']
+    if l:bottomRow ==# -1
+      let l:bottomRow = l:row
+    endif
+    if l:row > l:bottomRow
+      let l:bottomRow = l:row
+    endif
+  endfor
+  for l:win in l:others
+    if win_screenpos(l:win['winnr'])[0] + l:win['height'] <= l:bottomRow
       call add(l:res, l:win)
     endif
   endfor
@@ -64,8 +82,26 @@ function! termvim#getTabBottomWins() abort
     endif
   endfor
   let l:res = []
+  let l:others = []
   for l:win in l:wins
     if win_screenpos(l:win['winnr'])[0] + l:win['height'] ==# l:bottomRow
+      call add(l:res, l:win)
+    else
+      call add(l:others, l:win)
+    endif
+  endfor
+  let l:topRow = -1
+  for l:win in l:res
+    let l:row = win_screenpos(l:win['winnr'])[0]
+    if l:topRow ==# -1
+      let l:topRow = l:row
+    endif
+    if l:row < l:topRow
+      let l:topRow = l:row
+    endif
+  endfor
+  for l:win in l:others
+    if win_screenpos(l:win['winnr'])[0] >= l:topRow
       call add(l:res, l:win)
     endif
   endfor
@@ -86,8 +122,26 @@ function! termvim#getTabLeftWins() abort
     endif
   endfor
   let l:res = []
+  let l:others = []
   for l:win in l:wins
     if win_screenpos(l:win['winnr'])[1] ==# l:leftCol
+      call add(l:res, l:win)
+    else
+      call add(l:others, l:win)
+    endif
+  endfor
+  let l:rightCol = -1
+  for l:win in l:res
+    let l:col = win_screenpos(l:win['winnr'])[1]
+    if l:rightCol ==# -1
+      let l:rightCol = l:col + l:win['width']
+    endif
+    if l:col + l:win['width'] > l:rightCol
+      let l:rightCol = l:col + l:win['width']
+    endif
+  endfor
+  for l:win in l:others
+    if win_screenpos(l:win['winnr'])[1] + l:win['width'] <= l:rightCol
       call add(l:res, l:win)
     endif
   endfor
@@ -108,8 +162,26 @@ function! termvim#getTabRightWins() abort
     endif
   endfor
   let l:res = []
+  let l:others = []
   for l:win in l:wins
     if win_screenpos(l:win['winnr'])[1] + l:win['width'] ==# l:rightCol
+      call add(l:res, l:win)
+    else
+      call add(l:others, l:win)
+    endif
+  endfor
+  let l:leftCol = -1
+  for l:win in l:res
+    let l:col = win_screenpos(l:win['winnr'])[1]
+    if l:leftCol ==# -1
+      let l:leftCol = l:col
+    endif
+    if l:col < l:leftCol
+      let l:leftCol = l:col
+    endif
+  endfor
+  for l:win in l:others
+    if win_screenpos(l:win['winnr'])[1] >= l:leftCol
       call add(l:res, l:win)
     endif
   endfor

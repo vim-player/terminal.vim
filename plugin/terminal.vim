@@ -79,8 +79,8 @@ endfunction
 augroup TermvimAug
   autocmd!
   if has('nvim')
-    autocmd TermOpen * nnoremap q :call <SID>termvim_hide()<CR> | nnoremap <CR> :call <SID>termvim_hide()<CR>
+    autocmd TermOpen * nnoremap <buffer> q :call <SID>termvim_hide()<CR> | nnoremap <buffer> <CR> :call <SID>termvim_hide()<CR>
   else
-    autocmd TerminalOpen * nnoremap q :call <SID>termvim_hide()<CR> | nnoremap <CR> :call <SID>termvim_hide()<CR>
+    autocmd TerminalOpen * nnoremap <buffer> q :call <SID>termvim_hide()<CR> | nnoremap <buffer> <CR> :call <SID>termvim_hide()<CR>
   endif
 augroup END
