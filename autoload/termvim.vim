@@ -349,8 +349,10 @@ function s:termOut(...) abort
   endif
   let l:wins = getwininfo()
   let l:isShow = v:false
+  let l:showTab = -1
   for l:win in l:wins
     if l:win['bufnr'] ==# l:bufnr
+      let l:showTab = l:win['bufnr']
       let l:isShow = v:true
     endif
   endfor
@@ -380,6 +382,13 @@ function s:termOut(...) abort
       endif
       nnoremap <buffer> q :silent! close!<CR>:tabprevious<CR>
       nnoremap <buffer> <ESC> :silent! close!<CR>:tabprevious<CR>
+    endif
+  elseif l:showTab !=# tabpagenr()
+    execute 'normal ' . l:showTab . 'gt'
+    if has('nvim')
+      normal G
+    else
+      normal a
     endif
   endif
 endfunction
