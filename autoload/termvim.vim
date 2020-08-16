@@ -527,6 +527,7 @@ function! termvim#toggle(side, extra, bufnr) abort
       else
         tabnew
         call termvim#watchTerm()
+        let s:tabTermInfo.tabBufnr = bufnr()
       endif
     endif
   endif
